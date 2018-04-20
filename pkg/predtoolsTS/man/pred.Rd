@@ -32,8 +32,8 @@ The object contains only two time series: the original one
 and the predictions. You can just set these series aswell.
 }
 \examples{
-data(co2)
-pred(modl(co2),n.ahead=40)
+prediction <- pred(model=modl(prep(AirPassengers)),n.ahead=25)
+pred(tserie=prediction$tserie, predictions=prediction$predictions)
 }
 \seealso{
 {

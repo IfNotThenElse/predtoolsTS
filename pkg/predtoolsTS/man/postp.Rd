@@ -17,14 +17,19 @@ A \code{pred} object with reverted transformations.
 \description{
 Using the \code{prep} data we undo the changes on a \code{pred} object.
 }
+\examples{
+preprocess <- prep(AirPassengers)
+prediction <- pred(modl(preprocess),n.ahead=30)
+postp.prediction <- postp(prediction,preprocess)
+}
 \seealso{
 {
 \code{\link{pred}}
 \code{\link{prep}},
 \code{\link{postp.homogenize.log}},
-\code{\link{postp.homogenize.boxcox}}
-\code{\link{postp.detrend.differencing}}
-\code{\link{postp.detrend.sfsm}}
+\code{\link{postp.homogenize.boxcox}},
+\code{\link{postp.detrend.differencing}},
+\code{\link{postp.detrend.sfsm}},
 \code{\link{postp.deseason.differencing}}
 }
 }

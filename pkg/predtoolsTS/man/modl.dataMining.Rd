@@ -12,7 +12,7 @@ modl.dataMining(form, tserieDF, algorithm, timeControl, metric = "RMSE",
 
 \item{tserieDF}{Data frame.}
 
-\item{algorithm}{A string. Algorithm to perform the training. Full list at \link{http://topepo.github.io/caret/train-models-by-tag.html}. Only regression types allowed.}
+\item{algorithm}{A string. Algorithm to perform the training. Full list at \url{http://topepo.github.io/caret/train-models-by-tag.html}. Only regression types allowed.}
 
 \item{timeControl}{trainControl object.}
 
@@ -25,6 +25,14 @@ train object
 }
 \description{
 Train the time serie(as data frame) to build the model.
+}
+\examples{
+\donttest{
+modl.dataMining(form=Class ~ .,
+ tserieDF=modl.tsToDataFrame(AirPassengers,formula=c(1:20)),
+ algorithm='rpart',
+ timeControl=modl.trControl(initialWindow=30,horizon=15,fixedWindow=TRUE))
+}
 }
 \author{
 Alberto Vico Moreno

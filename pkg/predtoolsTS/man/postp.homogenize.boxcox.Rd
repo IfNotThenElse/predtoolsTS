@@ -17,6 +17,10 @@ A \code{ts} object.
 \description{
 Undo Box-Cox transformation
 }
+\examples{
+p <- prep.homogenize.boxcox(AirPassengers)
+postp.homogenize.boxcox(p$tserie,p$lambda)
+}
 \author{
 Alberto Vico Moreno
 }

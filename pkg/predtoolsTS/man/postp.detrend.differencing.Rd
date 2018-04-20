@@ -11,13 +11,17 @@ postp.detrend.differencing(tserie, nd, firstvalues)
 
 \item{nd}{Number of differences.}
 
-\item{firsvalues}{Values lost on the original differences}
+\item{firstvalues}{Values lost on the original differences}
 }
 \value{
 A \code{ts} object.
 }
 \description{
 Uses inverse differences to revert the changes
+}
+\examples{
+p <- prep.detrend.differencing(AirPassengers)
+postp.detrend.differencing(p$tserie,p$nd,p$firstvalues)
 }
 \author{
 Alberto Vico Moreno

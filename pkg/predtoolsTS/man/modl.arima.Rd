@@ -16,8 +16,7 @@ ARIMA model.
 Assuming "tserie" is stationary, returns the best arima model
 }
 \examples{
-data(co2)
-modl.arima(co2)
+modl.arima(AirPassengers)
 }
 \author{
 Alberto Vico Moreno

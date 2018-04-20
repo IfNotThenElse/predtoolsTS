@@ -40,6 +40,25 @@ Plots the original time serie along with 2-5 predictive models.
 This function aims to ease the comparation between different predictive models
 by plotting them into the same graphic.
 }
+\examples{
+\donttest{
+data(AirPassengers)
+#pre-processing
+p <- prep(AirPassengers)
+#modelling
+arima.modl <- modl(p)
+cart.modl <- modl(p,method='dataMining',algorithm='rpart')
+#predicting
+arima.pred <- pred(arima.modl,n.ahead=30)
+cart.pred <- pred(cart.modl,n.ahead=45)
+#post-processing
+arima.pred <- postp(arima.pred,p)
+cart.pred <- postp(cart.pred,p)
+#visual comparison
+pred.compareModels(AirPassengers,arima.pred$predictions,cart.pred$predictions
+,legendNames=c('AirPassengers','ARIMA','CART'),yAxis='Passengers',legendPosition = 'topleft')
+}
+}
 \author{
 Alberto Vico Moreno
 }

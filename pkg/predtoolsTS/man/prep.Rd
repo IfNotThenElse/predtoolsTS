@@ -52,9 +52,8 @@ the given time serie is actually stationary, and modify the parameters according
 to your thoughts.
 }
 \examples{
-data(co2)
-prep(co2)
-prep(co2,homogenize.method='boxcox',detrend.method='none')
+prep(AirPassengers)
+prep(AirPassengers,homogenize.method='boxcox',detrend.method='none')
 }
 \references{
 \url{https://www.otexts.org/fpp/8/1}

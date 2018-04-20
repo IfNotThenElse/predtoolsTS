@@ -44,14 +44,14 @@
 #' @export
 #' @references \url{https://www.otexts.org/fpp/8/1}
 #' @examples
-#' data(co2)
-#' prep(co2)
-#' prep(co2,homogenize.method='boxcox',detrend.method='none')
+#' prep(AirPassengers)
+#' prep(AirPassengers,homogenize.method='boxcox',detrend.method='none')
 prep <- function(tserie,homogenize.method='log'
                       ,detrend.method='differencing',nd=NULL
                       ,deseason.method='differencing',nsd=NULL
                       ,detrend.first=TRUE){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
+  if(stats::frequency(tserie) == 1) deseason.method='none'
 
   newts <- tserie
   means <- NULL
@@ -88,13 +88,13 @@ prep <- function(tserie,homogenize.method='log'
         newts <- dtts[[1]]
         nd <- dtts[[2]]
         firstvalues <- dtts[[3]]
-      }else detrending.method='none'
+      }else detrend.method='none'
 
     }else if(detrend.method=='sfsm'){
       dtts <- prep.detrend.sfsm(newts)
       newts <- dtts[[1]]
       means <- dtts[[2]]
-    }else if(deseason.method!='none') stop('Invalid detrending method')
+    }else if(detrend.method!='none') stop('Invalid detrending method')
 
   }else{
 
@@ -104,13 +104,13 @@ prep <- function(tserie,homogenize.method='log'
         newts <- dtts[[1]]
         nd <- dtts[[2]]
         firstvalues <- dtts[[3]]
-      }else detrending.method='none'
+      }else detrend.method='none'
 
     }else if(detrend.method=='sfsm'){
       dtts <- prep.detrend.sfsm(newts)
       newts <- dtts[[1]]
       means <- dtts[[2]]
-    }else if(deseason.method!='none') stop('Invalid detrending method')
+    }else if(detrend.method!='none') stop('Invalid detrending method')
 
     if(deseason.method=='differencing'){
       dsts <- prep.deseason.differencing(newts,nsd)
@@ -142,16 +142,15 @@ prep <- function(tserie,homogenize.method='log'
   return (obj)
 }
 
-#' Logaritmic transformation
+#' Logarithmic transformation
 #'
-#' Performs a logaritmic transformation to a time serie.
+#' Performs a logarithmic transformation to a time serie.
 #'
 #' @param tserie a \code{ts} object
 #' @return \code{ts} object with transformed time serie
 #' @export
 #' @examples
-#' data(co2)
-#' prep.homogenize.log(co2)
+#' prep.homogenize.log(AirPassengers)
 prep.homogenize.log <- function(tserie){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
 
@@ -169,8 +168,7 @@ prep.homogenize.log <- function(tserie){
 #' @references Box-Cox transformation: \url{https://en.wikipedia.org/wiki/Power_transform#Box.E2.80.93Cox_transformation}
 #' @export
 #' @examples
-#' data(co2)
-#' prep.homogenize.log(co2)
+#' prep.homogenize.log(AirPassengers)
 prep.homogenize.boxcox <- function(tserie){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
   lambda <- forecast::BoxCox.lambda(tserie)
@@ -192,9 +190,8 @@ prep.homogenize.boxcox <- function(tserie){
 #' \item{firstvalues}{Lost values after differencing.}
 #' @export
 #' @examples
-#' data(co2)
-#' prep.detrend.differencing(co2)
-#' prep.detrend.differencing(co2,nd=2)
+#' prep.detrend.differencing(AirPassengers)
+#' prep.detrend.differencing(AirPassengers,nd=2)
 prep.detrend.differencing <- function(tserie,nd=NULL){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
 
@@ -232,8 +229,7 @@ prep.detrend.differencing <- function(tserie,nd=NULL){
 #' \item{means}{Vector containing the historical means.}
 #' @export
 #' @examples
-#' data(co2)
-#' prep.detrend.sfsm(co2)
+#' prep.detrend.sfsm(AirPassengers)
 prep.detrend.sfsm <- function(tserie){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
 
@@ -283,9 +279,8 @@ prep.detrend.sfsm <- function(tserie){
 #' \item{firstseasons}{Lost values after differencing.}
 #' @export
 #' @examples
-#' data(co2)
-#' prep.deseason.differencing(co2)
-#' prep.deseason.differencing(co2,nd=2)
+#' prep.deseason.differencing(AirPassengers)
+#' prep.deseason.differencing(AirPassengers,nsd=2)
 prep.deseason.differencing <- function(tserie, nsd=NULL){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
 
@@ -315,9 +310,8 @@ prep.deseason.differencing <- function(tserie, nsd=NULL){
 #' @param tserie a \code{ts} or a \code{prep} object
 #' @export
 #' @examples
-#' data(co2)
-#' prep.check.acf(co2)
-#' prep.check.acf(prep(co2))
+#' prep.check.acf(AirPassengers)
+#' prep.check.acf(prep(AirPassengers))
 prep.check.acf <- function(tserie){
   if(stats::is.ts(tserie)) stats::acf(tserie)
   else if(class(tserie)=='prep') stats::acf(tserie$tserie)
@@ -333,9 +327,8 @@ prep.check.acf <- function(tserie){
 #' @param tserie a \code{ts} or a \code{prep} object
 #' @export
 #' @examples
-#' data(co2)
-#' prep.check.adf(co2)
-#' prep.check.adf(prep(co2))
+#' prep.check.adf(AirPassengers)
+#' prep.check.adf(prep(AirPassengers))
 prep.check.adf <- function(tserie){
   if(stats::is.ts(tserie)) return (tseries::adf.test(tserie,alternative="stationary"))
   else if(class(tserie)=='prep') return (tseries::adf.test(tserie$tserie,alternative="stationary"))
@@ -344,61 +337,87 @@ prep.check.adf <- function(tserie){
 
 #generic functions
 
-plot.prep <- function(pr){
-  plot(pr$tserie,ylab="Preprocessed time serie",xlab="")
+#' Generic function
+#'
+#' Plots object prep
+#' @param x \code{prep} object
+#' @param ylab ylab
+#' @param xlab xlab
+#' @param ... ignored
+#' @export
+#' @examples
+#' plot(prep(AirPassengers),ylab="Stationary AisPassengers")
+plot.prep <- function(x,ylab="Preprocessed time serie",xlab="",...){
+  graphics::plot(x$tserie,ylab=ylab,xlab=xlab)
 }
 
-summary.prep <- function(pr){
+#' Generic function
+#'
+#' Summary of object prep
+#' @param object \code{prep} object
+#' @param ... ignored
+#' @export
+#' @examples
+#' summary(prep(AirPassengers))
+summary.prep <- function(object,...){
   cat("Preprocessed time series object\n")
 
-  if(pr$homogenize.method=='log') cat("~Homogenizing method: logarithmic transformation\n")
-  else if(pr$homogenize.method=='boxcox') cat ("~Homogenizing method: Box-Cox transformation with lambda=",pr$lambda,"\n")
+  if(object$homogenize.method=='log') cat("~Homogenizing method: logarithmic transformation\n")
+  else if(object$homogenize.method=='boxcox') cat ("~Homogenizing method: Box-Cox transformation with lambda=",object$lambda,"\n")
   else cat("~Transformation not applied\n")
 
-  if(pr$detrend.method=='differencing') {
-    cat("~Detrending method: differencing\n Number of differences: ",pr$nd,"\n")
-    cat("First original values: ",pr$firstvalues,"\n")
+  if(object$detrend.method=='differencing') {
+    cat("~Detrending method: differencing\n Number of differences: ",object$nd,"\n")
+    cat("First original values: ",object$firstvalues,"\n")
   }
-  else if(pr$detrend.method=='sfsm'){
+  else if(object$detrend.method=='sfsm'){
     cat("~Detrending method: substracting full-season means\n Season means: \n")
-    str(pr$means)
+    utils::str(object$means)
   }
   else cat("~No detrending performed\n")
 
-  if(pr$deseason.method=='differencing') {
-    cat("~Deseason method: differencing\n Number of seasonal differences: ",pr$nsd,"\n")
-    cat("First original seasons: ",pr$firstseasons,"\n")
+  if(object$deseason.method=='differencing') {
+    cat("~Deseason method: differencing\n Number of seasonal differences: ",object$nsd,"\n")
+    cat("First original seasons: ",object$firstseasons,"\n")
   }
   else cat("~No deseason performed\n")
 
-  if(pr$deseason.method!='none' && pr$detrend.method!='none'){
-    if(pr$detrend.first==TRUE) cat("~Detrending applied before deseasoning\n")
+  if(object$deseason.method!='none' && object$detrend.method!='none'){
+    if(object$detrend.first==TRUE) cat("~Detrending applied before deseasoning\n")
     else cat("~Detrending applied after deseasoning\n")
   }
 
-  cat("~Original serie start: ",pr$start,"\n")
-  cat("~Original serie length: ",pr$length,"\n")
+  cat("~Original serie start: ",object$start,"\n")
+  cat("~Original serie length: ",object$length,"\n")
 
   cat("~Preprocessed time serie:\n")
-  str(pr$tserie)
+  utils::str(object$tserie)
 }
 
-print.prep <- function(pr){
+#' Generic function
+#'
+#' Prints object prep
+#' @param x \code{prep} object
+#' @param ... ignored
+#' @export
+#' @examples
+#' print(prep(AirPassengers))
+print.prep <- function(x,...){
   cat("Preprocessed time series object\n\n")
   cat("Class: prep\n\n")
   cat("Attributes: \n")
-  cat("$homogenize.method: ",pr$homogenize.method,"\n")
-  if(!is.null(pr$lambda)) cat("$lambda: ",pr$lambda,"\n")
-  cat("$detrend.method: ",pr$detrend.method,"\n")
-  if(!is.null(pr$nd)) cat("$nd: ",pr$nd,"\n")
-  if(!is.null(pr$firstvalues)) cat("$firstvalues: ",pr$firstvalues,"\n")
-  if(!is.null(pr$means)) cat("$means: ",pr$means,"\n")
-  cat("$deseason.method: ",pr$deseason.method,"\n")
-  if(!is.null(pr$nsd)) cat("$nsd: ",pr$nsd,"\n")
-  if(!is.null(pr$firstseasons)) cat("$firstseasons: ",pr$firstseasons,"\n")
-  cat("$detrend.first: ",pr$detrend.first,"\n")
-  cat("$start: ",pr$start,"\n")
-  cat("$length: ",pr$length,"\n")
+  cat("$homogenize.method: ",x$homogenize.method,"\n")
+  if(!is.null(x$lambda)) cat("$lambda: ",x$lambda,"\n")
+  cat("$detrend.method: ",x$detrend.method,"\n")
+  if(!is.null(x$nd)) cat("$nd: ",x$nd,"\n")
+  if(!is.null(x$firstvalues)) cat("$firstvalues: ",x$firstvalues,"\n")
+  if(!is.null(x$means)) cat("$means: ",x$means,"\n")
+  cat("$deseason.method: ",x$deseason.method,"\n")
+  if(!is.null(x$nsd)) cat("$nsd: ",x$nsd,"\n")
+  if(!is.null(x$firstseasons)) cat("$firstseasons: ",x$firstseasons,"\n")
+  cat("$detrend.first: ",x$detrend.first,"\n")
+  cat("$start: ",x$start,"\n")
+  cat("$length: ",x$length,"\n")
   cat("$tserie: \n")
-  print(pr$tserie)
+  print(x$tserie)
 }

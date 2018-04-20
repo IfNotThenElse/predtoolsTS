@@ -26,11 +26,11 @@
 #' }
 #' @export
 #' @examples
-#' data(co2)
-#' pred(modl(co2),n.ahead=40)
+#' prediction <- pred(model=modl(prep(AirPassengers)),n.ahead=25)
+#' pred(tserie=prediction$tserie, predictions=prediction$predictions)
 pred <- function(model=NULL,n.ahead=20,tserie=NULL,predictions=NULL){
   if(!is.null(model)){
-    if(!is(model,"modl")) stop("Not a modl object")
+    if(!methods::is(model,"modl")) stop("Not a modl object")
 
     predictions <- NULL
 
@@ -68,10 +68,9 @@ pred <- function(model=NULL,n.ahead=20,tserie=NULL,predictions=NULL){
 #' @author Alberto Vico Moreno
 #' @export
 #' @examples
-#' data(co2)
-#' pred.arima(auto.arima(co2,n.ahead=30))
+#' pred.arima(forecast::auto.arima(prep(AirPassengers)$tserie),n.ahead=30)
 pred.arima <- function(model,n.ahead){
-  if(!is(model,"Arima")) stop("Not an Arima object")
+  if(!methods::is(model,"Arima")) stop("Not an Arima object")
   if(n.ahead > 100) stop("n.ahead must be lower than 100")
 
   return (stats::predict(model,n.ahead=n.ahead,se.fit=FALSE))
@@ -87,10 +86,10 @@ pred.arima <- function(model,n.ahead){
 #' @author Alberto Vico Moreno
 #' @export
 #' @examples
-#' data(co2)
-#' pred.dataMining(modl(co2,method="dataMining",algorithm="rpart"),n.ahead=40)
+#' m <- modl(prep(AirPassengers),method='dataMining',algorithm='rpart')
+#' pred.dataMining(m,n.ahead=15)
 pred.dataMining <- function(model,n.ahead){
-  if(!is(model,"modl")) stop("Not a modl object")
+  if(!methods::is(model,"modl")) stop("Not a modl object")
   if(model$method != "dataMining") stop("model method has to be dataMining.")
   if(n.ahead > 100) stop("n.ahead must be lower than 100")
 
@@ -136,6 +135,24 @@ pred.dataMining <- function(model,n.ahead){
 #' @author Alberto Vico Moreno
 #' @import stats
 #' @export
+#' @examples
+#' \donttest{
+#' data(AirPassengers)
+#' #pre-processing
+#' p <- prep(AirPassengers)
+#' #modelling
+#' arima.modl <- modl(p)
+#' cart.modl <- modl(p,method='dataMining',algorithm='rpart')
+#' #predicting
+#' arima.pred <- pred(arima.modl,n.ahead=30)
+#' cart.pred <- pred(cart.modl,n.ahead=45)
+#' #post-processing
+#' arima.pred <- postp(arima.pred,p)
+#' cart.pred <- postp(cart.pred,p)
+#' #visual comparison
+#' pred.compareModels(AirPassengers,arima.pred$predictions,cart.pred$predictions
+#' ,legendNames=c('AirPassengers','ARIMA','CART'),yAxis='Passengers',legendPosition = 'topleft')
+#' }
 pred.compareModels <- function(originalTS,p_1,p_2,p_3=NULL,p_4=NULL,p_5=NULL,
                                legendNames=NULL,colors=NULL,legend=TRUE,legendPosition=NULL,yAxis="Values",title="Predictions"){
 
@@ -167,7 +184,7 @@ pred.compareModels <- function(originalTS,p_1,p_2,p_3=NULL,p_4=NULL,p_5=NULL,
   ylim <- c(minY,maxY)
 
   if(is.null(colors)){ #set colors
-    colors <- c('black','green','aquamarine3','darkgoldenrod1','blue','darkorchid' )
+    colors <- c('black','green','blue','darkgoldenrod1','aquamarine3','darkorchid' )
     colors <- c(colors[1:(n+1)])
   }else if(length(colors) != (n+1)) stop('Vector "colors" wrong size. Has to contain colors for every time serie (including the original one)')
 
@@ -176,81 +193,95 @@ pred.compareModels <- function(originalTS,p_1,p_2,p_3=NULL,p_4=NULL,p_5=NULL,
     legendNames <- c(legendNames[1:(n+1)])
   }else if(length(legendNames) != (n+1)) stop('Vector "legendNames" wrong size. Has to contain legend names for every time serie (including the original one)')
 
-  plot(originalTS,xlim=xlim,ylim=ylim,col=colors[1],ylab=yAxis) #plot original ts
+  graphics::plot(originalTS,xlim=xlim,ylim=ylim,col=colors[1],ylab=yAxis) #plot original ts
   title(main=paste0(title))
 
   #draw the predictions
-  lines(p_1,col=colors[2])
-  lines(p_2,col=colors[3])
+  graphics::lines(p_1,col=colors[2])
+  graphics::lines(p_2,col=colors[3])
   colorCounter <- 4
   if(!is.null(p_3)) {
-    lines(p_3,col=colors[colorCounter])
+    graphics::lines(p_3,col=colors[colorCounter])
     colorCounter <- colorCounter+1
   }
   if(!is.null(p_4)) {
-    lines(p_4,col=colors[colorCounter])
+    graphics::lines(p_4,col=colors[colorCounter])
     colorCounter <- colorCounter+1
   }
   if(!is.null(p_5)) {
-    lines(p_5,col=colors[colorCounter])
+    graphics::lines(p_5,col=colors[colorCounter])
     colorCounter <- colorCounter+1
   }
 
   #draw the legend
   if(legend){
     if(is.null(legendPosition))
-      position <- "bottomright"
-    legend(position,lty=c(1,1),col=colors,legend=legendNames)
+      legendPosition <- "bottomright"
+    legend(legendPosition,lty=c(1,1),col=colors,legend=legendNames)
   }
 }
 
 
 #generic functions
 
-plot.pred <- function(prd,legendNames=NULL,colors=NULL,legend=TRUE,legendPosition=NULL,yAxis="Values",title="Predictions"){
+#' Generic function
+#'
+#' Plots object prep
+#' @param x \code{pred} object
+#' @param ylab ylab
+#' @param main main
+#' @param ... ignored
+#' @export
+#' @examples
+#' plot(pred(modl(prep(AirPassengers))))
+plot.pred <- function(x,ylab="Values",main="Predictions",...){
 
-  maxX <- end(prd$predictions) #maximum value of x axis
-  minY <- min(prd$tserie,prd$predictions) #minimum value of y axis
-  maxY <- max(prd$tserie,prd$predictions) #maximum value of y axis
+  maxX <- end(x$predictions) #maximum value of x axis
+  minY <- min(x$tserie,x$predictions) #minimum value of y axis
+  maxY <- max(x$tserie,x$predictions) #maximum value of y axis
 
-  xlim <- c(start(prd$tserie)[1],maxX[1])
+  xlim <- c(start(x$tserie)[1],maxX[1])
   ylim <- c(minY,maxY)
 
-  if(is.null(colors)){ #set colors
-    colors <- c('black','green')
-  }else if(length(colors) != 2) stop('Vector "colors" wrong size, needs to be length 2')
+  colors <- c('black','green')
 
-  plot(prd$tserie,xlim=xlim,ylim=ylim,col=colors[1],ylab=yAxis) #plot original ts
-  title(main=paste0(title))
+  graphics::plot(x$tserie,xlim=xlim,ylim=ylim,col=colors[1],ylab=ylab,main=main) #plot original ts
 
-  lines(prd$predictions,col=colors[2]) #draw the predictions
-
-  if(legend){ #plot the legend
-    if(is.null(legendNames)) legendNames <- c('Original TS','Predictions') #set legend names
-    else if(length(legendNames) != 2) stop('Vector "legendNames" wrong size, needs to be length 2')
-
-    if(is.null(legendPosition)) position <- "bottomright"
-
-    legend(position,lty=c(1,1),col=colors,legend=legendNames)
-  }
+  graphics::lines(x$predictions,col=colors[2]) #draw the predictions
 }
 
-summary.pred <- function(prd){
+#' Generic function
+#'
+#' Summary of object pred
+#' @param object \code{prep} object
+#' @param ... ignored
+#' @export
+#' @examples
+#' summary(pred(modl(prep(AirPassengers))))
+summary.pred <- function(object,...){
   cat("Predicted time serie object\n\n")
   cat("~Original time serie:\n")
-  str(prd$tserie)
+  utils::str(object$tserie)
   cat("\n")
-  cat("~Predictions (n=",length(prd$predictions),"):\n")
-  str(prd$predictions)
+  cat("~Predictions (n=",length(object$predictions),"):\n")
+  utils::str(object$predictions)
 }
 
-print.pred <- function(prd){
+#' Generic function
+#'
+#' Prints object pred
+#' @param x \code{prep} object
+#' @param ... ignored
+#' @export
+#' @examples
+#' print(pred(modl(prep(AirPassengers))))
+print.pred <- function(x,...){
   cat("Predicted time serie object\n\n")
   cat("Class: pred\n\n")
   cat("Attributes: \n")
   cat("$tserie: \n")
-  print(prd$tserie)
+  print(x$tserie)
   cat("\n")
   cat("$predictions: \n")
-  print(prd$predictions)
+  print(x$predictions)
 }

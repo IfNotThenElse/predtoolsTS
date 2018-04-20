@@ -28,6 +28,5 @@ To get the detrended serie we do:
 Being \code{xi} the actual values on the time series and \code{m} the mean of the segment of \code{xi}
 }
 \examples{
-data(co2)
-prep.detrend.sfsm(co2)
+prep.detrend.sfsm(AirPassengers)
 }

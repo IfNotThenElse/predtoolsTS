@@ -9,7 +9,7 @@
 #' and the "not so used for prediction" data mining. For the data mining we make
 #' use of the \code{caret} package.
 #'
-#' The \caret{package} offers plenty of data mining algorithms.
+#' The \code{caret} package offers plenty of data mining algorithms.
 #' For the data splitting here we use a rolling forecasting origin technique, wich
 #' works better on time series.
 #'
@@ -39,14 +39,14 @@
 #' @export
 #' @references \url{http://topepo.github.io/caret/index.html}
 #' @examples
-#' data(co2)
-#' modl(co2)
-#' modl(prep(co2),method='dataMining',algorithm='rpart',formula=c(1:9),fixedWindow=FALSE)
+#' p <- prep(AirPassengers)
+#' modl(p,method='arima')
+#' \donttest{modl(p,method='dataMining',algorithm='rpart')}
 modl <- function(tserie, method='arima'
                   ,algorithm=NULL
                   ,formula=NULL
                   ,initialWindow=NULL,horizon=NULL,fixedWindow=NULL){
-  if(is(tserie,"prep")) tserie <- tserie$tserie
+  if(methods::is(tserie,"prep")) tserie <- tserie$tserie
   else if(!stats::is.ts(tserie)) stop('Not a ts or prep object')
 
   model <- NULL
@@ -105,8 +105,7 @@ modl <- function(tserie, method='arima'
 #' @author Alberto Vico Moreno
 #' @export
 #' @examples
-#' data(co2)
-#' modl.arima(co2)
+#' modl.arima(AirPassengers)
 modl.arima <- function(tserie){
   return (forecast::auto.arima(tserie,seasonal=FALSE))
 }
@@ -121,9 +120,8 @@ modl.arima <- function(tserie){
 #' @author Alberto Vico Moreno
 #' @export
 #' @examples
-#' data(co2)
-#' modl.tsToDataFrame(co2,formula=c(1,3,4,5,6,7))
-#' modl.tsToDataFrame(co2,formula=c(1:20))
+#' modl.tsToDataFrame(AirPassengers,formula=c(1,3,4,5,6,7))
+#' modl.tsToDataFrame(AirPassengers,formula=c(1:20))
 modl.tsToDataFrame <- function(tserie,formula=NULL){
   if(!stats::is.ts(tserie)) stop('Not a ts object')
 
@@ -154,7 +152,7 @@ modl.tsToDataFrame <- function(tserie,formula=NULL){
     if(i > length(tserie)-numE) continuar <- FALSE #not enough elements left to make another observation
   }
 
-  if(i < k) stop('Not enough observations to make good prediction:\n')
+  if(i < k) stop('Not enough observations to make good prediction: you need minimum a 60 length series.\n')
 
   for(i in 1:(n+1)){
     if (i==n+1) colnames(mat)[i] <- 'Class'
@@ -196,13 +194,20 @@ modl.trControl <- function(initialWindow,horizon,fixedWindow,givenSummary=FALSE)
 #'
 #' @param form A formula of the form y ~ x1 + x2 + ...
 #' @param tserieDF Data frame.
-#' @param algorithm A string. Algorithm to perform the training. Full list at \link{http://topepo.github.io/caret/train-models-by-tag.html}. Only regression types allowed.
+#' @param algorithm A string. Algorithm to perform the training. Full list at \url{http://topepo.github.io/caret/train-models-by-tag.html}. Only regression types allowed.
 #' @param timeControl trainControl object.
 #' @param metric A string. Specifies what summary metric will be used to select the optimal model. Possible values in \code{caret} are "RMSE" and "Rsquared". "RMSE" set as default. If you used a custom summaryFunction(see ?trainControl) your metrics will prevail over default.
 #' @param maximize A logical. Should the metric be maximized or minimized? Default is FALSE, since that is what makes sense for time series.
 #' @return train object
 #' @author Alberto Vico Moreno
 #' @export
+#' @examples
+#' \donttest{
+#' modl.dataMining(form=Class ~ .,
+#'  tserieDF=modl.tsToDataFrame(AirPassengers,formula=c(1:20)),
+#'  algorithm='rpart',
+#'  timeControl=modl.trControl(initialWindow=30,horizon=15,fixedWindow=TRUE))
+#' }
 modl.dataMining <- function(form,tserieDF,algorithm,timeControl,metric="RMSE",maximize=FALSE){
   return (caret::train(form,data=tserieDF,method=algorithm,trControl=timeControl,metric=metric,maximize=maximize))
 }
@@ -221,41 +226,57 @@ modl.sumFunction <- function(data,lev = NULL,model = NULL){
 
 ##generic functions
 
-summary.modl <- function(mdl){
+#' Generic function
+#'
+#' Summary of object modl
+#' @param object \code{prep} object
+#' @param ... ignored
+#' @export
+#' @examples
+#' summary(modl(prep(AirPassengers)))
+summary.modl <- function(object,...){
   cat("Fitted model object\n")
 
-  if(mdl$method=='arima') cat("~Modelling method: ARIMA\n")
-  else if(mdl$method=='dataMining') cat ("~Modelling method: Data mining\n~Algorithm: ",mdl$algorithm,"\n")
+  if(object$method=='arima') cat("~Modelling method: ARIMA\n")
+  else if(object$method=='dataMining') cat ("~Modelling method: Data mining\n~Algorithm: ",object$algorithm,"\n")
 
   cat("~Original time serie: \n")
-  str(mdl$tserie)
+  utils::str(object$tserie)
 
   cat("~Original time serie as data frame")
-  str(mdl$tserieDF)
+  utils::str(object$tserieDF)
 
   cat("~Model (best tuning parameters): \n")
-  if(mdl$method=='dataMining') print(mdl$model$bestTune)
-  else if(mdl$method=='arima') print(arimaorder(mdl$model))
+  if(object$method=='dataMining') print(object$model$bestTune)
+  else if(object$method=='arima') print(forecast::arimaorder(object$model))
 
   cat("~Error measures: \n")
-  print(mdl$errors)
+  print(object$errors)
 }
 
-print.modl <- function(mdl){
+#' Generic function
+#'
+#' Prints object modl
+#' @param x \code{prep} object
+#' @param ... ignored
+#' @export
+#' @examples
+#' print(modl(prep(AirPassengers)))
+print.modl <- function(x,...){
   cat("Fitted model object\n")
   cat("Class: modl\n\n")
   cat("Attributes: \n\n")
-  cat("$method: ",mdl$method,"\n\n")
-  if(!is.null(mdl$algorithm)) cat("$algorithm: ",mdl$algorithm,"\n\n")
+  cat("$method: ",x$method,"\n\n")
+  if(!is.null(x$algorithm)) cat("$algorithm: ",x$algorithm,"\n\n")
   cat("$tserie: \n")
-  print(mdl$tserie)
+  print(x$tserie)
   cat("\n")
   cat("$tserieDF: \n")
-  str(mdl$tserieDF)
+  utils::str(x$tserieDF)
   cat("\n")
   cat("$model: \n")
-  print(mdl$model)
+  print(x$model)
   cat("\n")
   cat("$errors: \n")
-  print(mdl$errors)
+  print(x$errors)
 }

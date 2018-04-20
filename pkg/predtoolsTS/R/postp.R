@@ -10,16 +10,20 @@
 #' \code{\link{pred}}
 #' \code{\link{prep}},
 #' \code{\link{postp.homogenize.log}},
-#' \code{\link{postp.homogenize.boxcox}}
-#' \code{\link{postp.detrend.differencing}}
-#' \code{\link{postp.detrend.sfsm}}
+#' \code{\link{postp.homogenize.boxcox}},
+#' \code{\link{postp.detrend.differencing}},
+#' \code{\link{postp.detrend.sfsm}},
 #' \code{\link{postp.deseason.differencing}}
 #' }
 #' @import stats
 #' @export
+#' @examples
+#' preprocess <- prep(AirPassengers)
+#' prediction <- pred(modl(preprocess),n.ahead=30)
+#' postp.prediction <- postp(prediction,preprocess)
 postp <- function(prd,pre){
-  if(!is(prd,"pred")) stop("Not a pred object")
-  if(!is(pre,"prep")) stop("Not a prep object")
+  if(!methods::is(prd,"pred")) stop("Not a pred object")
+  if(!methods::is(pre,"prep")) stop("Not a prep object")
 
   u <- c(window(prd$tserie,end=(start(prd$predictions)-c(0,1))),prd$predictions) #union of both time series as a vector, leaving the test part out from the original time serie
   tserie <- prd$tserie #original time serie
@@ -77,7 +81,7 @@ postp <- function(prd,pre){
   return (pred(tserie=tserie,predictions=predictions))
 }
 
-#' Undo logaritmic transformation
+#' Undo logarithmic transformation
 #'
 #' Uses exponent to reverse the logarithm
 #'
@@ -85,6 +89,8 @@ postp <- function(prd,pre){
 #' @return A \code{ts} object.
 #' @author Alberto Vico Moreno
 #' @export
+#' @examples
+#' postp.homogenize.log(prep.homogenize.log(AirPassengers))
 postp.homogenize.log <- function(tserie){
   return (exp(tserie))
 }
@@ -96,6 +102,9 @@ postp.homogenize.log <- function(tserie){
 #' @return A \code{ts} object.
 #' @author Alberto Vico Moreno
 #' @export
+#' @examples
+#' p <- prep.homogenize.boxcox(AirPassengers)
+#' postp.homogenize.boxcox(p$tserie,p$lambda)
 postp.homogenize.boxcox <- function(tserie,lambda){
   if(lambda==0) return (exp(tserie))
   else (lambda*tserie + 1)^(1/lambda)
@@ -107,10 +116,13 @@ postp.homogenize.boxcox <- function(tserie,lambda){
 #'
 #' @param tserie A \code{ts} object.
 #' @param nd Number of differences.
-#' @param firsvalues Values lost on the original differences
+#' @param firstvalues Values lost on the original differences
 #' @return A \code{ts} object.
 #' @author Alberto Vico Moreno
 #' @export
+#' @examples
+#' p <- prep.detrend.differencing(AirPassengers)
+#' postp.detrend.differencing(p$tserie,p$nd,p$firstvalues)
 postp.detrend.differencing <- function(tserie,nd,firstvalues){
   return (stats::diffinv(tserie,lag=1,differences=nd,firstvalues))
 }
@@ -125,6 +137,9 @@ postp.detrend.differencing <- function(tserie,nd,firstvalues){
 #' @author Alberto Vico Moreno
 #' @export
 #' @import stats
+#' @examples
+#' p <- prep.detrend.sfsm(AirPassengers)
+#' postp.detrend.sfsm(p$tserie,p$means,start(AirPassengers),frequency(AirPassengers))
 postp.detrend.sfsm <- function(tserie,means,start,frequency){
   first <- start[2] #first observation index of the time serie
   index <- 1 #general index
@@ -182,6 +197,9 @@ postp.detrend.sfsm <- function(tserie,means,start,frequency){
 #' @return A \code{ts} object.
 #' @author Alberto Vico Moreno
 #' @export
+#' @examples
+#' p <- prep.deseason.differencing(AirPassengers)
+#' postp.deseason.differencing(p$tserie,p$nsd,p$firstseasons,frequency(AirPassengers))
 postp.deseason.differencing <- function(tserie,nsd,firstseasons,frequency){
   return (stats::diffinv(tserie,lag=frequency,differences=nsd,firstseasons))
 }

@@ -25,7 +25,6 @@ If no number of differences is specified, the function will make an estimation
 of the number of differences needed based on unit root test provided by \code{forecast::nsdiffs}
 }
 \examples{
-data(co2)
-prep.deseason.differencing(co2)
-prep.deseason.differencing(co2,nd=2)
+prep.deseason.differencing(AirPassengers)
+prep.deseason.differencing(AirPassengers,nsd=2)
 }

@@ -25,7 +25,6 @@ If no number of differences is specified, the function will make an estimation
 of the number of differences needed based on unit root test provided by \code{forecast::ndiffs}
 }
 \examples{
-data(co2)
-prep.detrend.differencing(co2)
-prep.detrend.differencing(co2,nd=2)
+prep.detrend.differencing(AirPassengers)
+prep.detrend.differencing(AirPassengers,nd=2)
 }

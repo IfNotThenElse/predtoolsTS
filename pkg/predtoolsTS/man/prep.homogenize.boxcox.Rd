@@ -18,8 +18,7 @@ A list is returned containing:
 Performs a Box-Cox transformation to a time serie.
 }
 \examples{
-data(co2)
-prep.homogenize.log(co2)
+prep.homogenize.log(AirPassengers)
 }
 \references{
 Box-Cox transformation: \url{https://en.wikipedia.org/wiki/Power_transform#Box.E2.80.93Cox_transformation}

@@ -18,9 +18,8 @@ the time serie as data frame
 Transform a ts object into a data frame using the given formula.
 }
 \examples{
-data(co2)
-modl.tsToDataFrame(co2,formula=c(1,3,4,5,6,7))
-modl.tsToDataFrame(co2,formula=c(1:20))
+modl.tsToDataFrame(AirPassengers,formula=c(1,3,4,5,6,7))
+modl.tsToDataFrame(AirPassengers,formula=c(1:20))
 }
 \author{
 Alberto Vico Moreno

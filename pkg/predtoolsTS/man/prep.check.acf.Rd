@@ -18,7 +18,6 @@ relatively quickly, while the ACF of non-stationary data decreases slowly.
 Also, for non-stationary data, the value is often large and positive.
 }
 \examples{
-data(co2)
-prep.check.acf(co2)
-prep.check.acf(prep(co2))
+prep.check.acf(AirPassengers)
+prep.check.acf(prep(AirPassengers))
 }

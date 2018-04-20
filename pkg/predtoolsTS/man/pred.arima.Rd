@@ -18,8 +18,7 @@ A \code{ts} object containing the predictions.
 Performs predictions over an ARIMA model using the \code{stats::predict} function.
 }
 \examples{
-data(co2)
-pred.arima(auto.arima(co2,n.ahead=30))
+pred.arima(forecast::auto.arima(prep(AirPassengers)$tserie),n.ahead=30)
 }
 \author{
 Alberto Vico Moreno

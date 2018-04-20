@@ -2,7 +2,7 @@
 % Please edit documentation in R/prep.R
 \name{prep.homogenize.log}
 \alias{prep.homogenize.log}
-\title{Logaritmic transformation}
+\title{Logarithmic transformation}
 \usage{
 prep.homogenize.log(tserie)
 }
@@ -13,9 +13,8 @@ prep.homogenize.log(tserie)
 \code{ts} object with transformed time serie
 }
 \description{
-Performs a logaritmic transformation to a time serie.
+Performs a logarithmic transformation to a time serie.
 }
 \examples{
-data(co2)
-prep.homogenize.log(co2)
+prep.homogenize.log(AirPassengers)
 }

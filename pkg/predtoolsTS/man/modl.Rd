@@ -43,14 +43,14 @@ Currently this function covers two different methods: the widely know ARIMA
 and the "not so used for prediction" data mining. For the data mining we make
 use of the \code{caret} package.
 
-The \caret{package} offers plenty of data mining algorithms.
+The \code{caret} package offers plenty of data mining algorithms.
 For the data splitting here we use a rolling forecasting origin technique, wich
 works better on time series.
 }
 \examples{
-data(co2)
-modl(co2)
-modl(prep(co2),method='dataMining',algorithm='rpart',formula=c(1:9),fixedWindow=FALSE)
+p <- prep(AirPassengers)
+modl(p,method='arima')
+\donttest{modl(p,method='dataMining',algorithm='rpart')}
 }
 \references{
 \url{http://topepo.github.io/caret/index.html}

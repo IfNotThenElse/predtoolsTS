@@ -21,6 +21,10 @@ A \code{ts} object.
 \description{
 Uses inverse seasonal differences to reverse the changes
 }
+\examples{
+p <- prep.deseason.differencing(AirPassengers)
+postp.deseason.differencing(p$tserie,p$nsd,p$firstseasons,frequency(AirPassengers))
+}
 \author{
 Alberto Vico Moreno
 }

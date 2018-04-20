@@ -16,7 +16,6 @@ Performs ADF test just as another tool to check stationarity.
 Shows the results of an ADF test. A p-value<0.05 suggests the data is stationary.
 }
 \examples{
-data(co2)
-prep.check.adf(co2)
-prep.check.adf(prep(co2))
+prep.check.adf(AirPassengers)
+prep.check.adf(prep(AirPassengers))
 }

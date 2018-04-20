@@ -21,6 +21,10 @@ A \code{ts} object.
 \description{
 Undo detrend(substracting full-means method)
 }
+\examples{
+p <- prep.detrend.sfsm(AirPassengers)
+postp.detrend.sfsm(p$tserie,p$means,start(AirPassengers),frequency(AirPassengers))
+}
 \author{
 Alberto Vico Moreno
 }

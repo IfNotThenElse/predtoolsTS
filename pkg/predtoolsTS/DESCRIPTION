@@ -6,7 +6,7 @@ Date: 2018-04-26
 Authors@R: c(person("Alberto", "Vico Moreno", role=c("aut","cre"),email="avm00016@red.ujaen.es"),
   person("Antonio Jesús","Rivera Rivas",role=c("aut","ths"),email="arivera@ujaen.es"),
   person("María Dolores","Pérez Godoy",role=c("aut","ths"),email="lperez@ujaen.es"))
-Authors: Alberto Vico Moreno, Antonio Jesús Rivera Rivas, María Dolores Pérez Godoy
+Author: Alberto Vico Moreno, Antonio Jesús Rivera Rivas, María Dolores Pérez Godoy
 Maintainer: Alberto Vico Moreno <avm00016@red.ujaen.es>
 Description: Makes the time series prediction easier by automatizing this process
   using four main functions: prep(), modl(), pred() and postp(). Features different
@@ -16,6 +16,7 @@ Description: Makes the time series prediction easier by automatizing this proces
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/avm00016/predtoolsTS
 RoxygenNote: 6.0.1
 Imports: caret,
     forecast,
